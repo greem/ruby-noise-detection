@@ -51,7 +51,7 @@ start() {
     echo -n "Starting noise detector: "
     # Only try to start if not already started
     if ! rh_status_q; then
-      daemon ${daemonopts} ${noisefile} -m $SOUND_CARD
+      daemon ${daemonopts} ${noisefile} -m $SOUND_CARD -n $THRESHOLD -s $DURATION -e $EMAIL
     fi
     # This will be 0 if script is already running
     RETVAL=$?
