@@ -171,15 +171,19 @@ pid = fork do
 	filecontent = File.open(RECORD_FILENAME ,"rb") {|io| io.read}
  	
         encoded = [filecontent].pack("m")    # base64 econding
-puts  value = %x[/usr/sbin/sendmail #{options[:email]} << EOF
-subject: WARNING: Noise Detected
-from: home@mornati.net
-Content-Description: "noise.wav"
-Content-Type: audio/x-wav; name="noise.wav"
-Content-Transfer-Encoding:base64
-Content-Disposition: attachment; filename="noise.wav"
-#{encoded}
-EOF] 
+
+        File.popen(MAIL,"w") do
+          | pipe |
+          pipe.puts "Subject: WARNING: Noise Detected"
+          pipe.puts "From: #{options[:email]}"
+          pipe.puts "To: #{options[:email]}"
+          pipe.puts "Content-Description: \"noise.wav\""
+          pipe.puts "Content-Type: audio/x-wav; name=\"noise.wav\""
+          pipe.puts "Content-Transfer-Encoding:base64"
+          pipe.puts "Content-Disposition: attachment; filename=\"noise.wav\""
+          pipe.puts ""
+          pipe.puts "#{encoded}"
+        end
     else
       logger.debug("No sound detected...")
     end
